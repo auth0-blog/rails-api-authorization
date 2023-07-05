@@ -3,6 +3,7 @@ class CreateExpenses < ActiveRecord::Migration[7.0]
     create_table :expenses do |t|
       t.string :reason
       t.datetime :date
+      t.float :amount
       t.references :submitter, foreign_key: { to_table: :users }
       t.timestamps
     end
