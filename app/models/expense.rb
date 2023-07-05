@@ -3,9 +3,9 @@ class Expense < ApplicationRecord
 
   validates :reason, presence: true 
   validates :amount, presence: true, numericality: { greater_than: 0 }
-
+  
+  validates :date, presence: true
   validate :date_is_prior_to_today
-
 
   private
 
