@@ -5,3 +5,8 @@
 #
 #   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
 #   Character.create(name: "Luke", movie: movies.first)
+User.create!(email: "user1@example.com", role: nil)
+User.create!(email: "user2@example.com", role: nil)
+
+Expense.create!(reason: "trip1", date: DateTime.now, submitter_id: 1)
+Expense.create!(reason: "trip1", date: DateTime.now, submitter_id: 2)
