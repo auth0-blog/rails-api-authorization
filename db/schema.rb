@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_07_04_143138) do
+ActiveRecord::Schema[7.0].define(version: 2023_07_05_095104) do
   create_table "expenses", force: :cascade do |t|
     t.string "reason"
     t.datetime "date"
@@ -21,6 +21,18 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_04_143138) do
     t.index ["submitter_id"], name: "index_expenses_on_submitter_id"
   end
 
+  create_table "reports", force: :cascade do |t|
+    t.string "status", default: "rejected", null: false
+    t.integer "submitter_id"
+    t.integer "approver_id"
+    t.integer "expense_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approver_id"], name: "index_reports_on_approver_id"
+    t.index ["expense_id"], name: "index_reports_on_expense_id"
+    t.index ["submitter_id"], name: "index_reports_on_submitter_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email"
     t.datetime "created_at", null: false
@@ -28,4 +40,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_04_143138) do
   end
 
   add_foreign_key "expenses", "users", column: "submitter_id"
+  add_foreign_key "reports", "expenses"
+  add_foreign_key "reports", "users", column: "approver_id"
+  add_foreign_key "reports", "users", column: "submitter_id"
 end
