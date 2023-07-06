@@ -28,7 +28,7 @@ You can use this repository as a starting point before following the instruction
   rails db:setup
   ```
 
-3. Run the Expense Management API:
+1. Run the Expense Management API:
 
   ```bash
   rails s
