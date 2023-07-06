@@ -1,4 +1,5 @@
 class ExpensesController < ApplicationController
+  before_action :authorize
   before_action :set_user
   before_action :set_expense, only: %i[ show update destroy ]
 
@@ -16,13 +17,17 @@ class ExpensesController < ApplicationController
 
   # POST users/:user_id/expenses
   def create
-    @expense = Expense.new(expense_params)
-    @expense.submitter_id = @user.id
+    ActiveRecord::Base.transaction do
+      @expense = Expense.new(expense_params)
+      @expense.submitter_id = @user.id
 
-    if @expense.save
-      render json: { expense: @expense.as_json.merge(location: user_expense_url(@user, @expense)) }, status: :created
-    else
-      render json: @expense.errors, status: :unprocessable_entity
+      if @expense.save
+        Report.create(expense: @expense, submitter_id: @expense.submitter_id)
+        render json: @expense, status: :created
+      else
+        render json: @expense.errors, status: :unprocessable_entity
+        raise ActiveRecord::Rollback # Rollback the transaction if saving the expense fails
+      end
     end
   end
 
@@ -37,6 +42,7 @@ class ExpensesController < ApplicationController
 
   # DELETE users/:user_id/expenses/1
   def destroy
+    @expense.reports.destroy_all
     @expense.destroy
   end
 

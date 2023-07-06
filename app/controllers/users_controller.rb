@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
+  before_action :authorize
   before_action :set_user, only: %i[ show update destroy ]
-
+  
   # GET /users
   def index
     @users = User.all
