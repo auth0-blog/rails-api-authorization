@@ -5,9 +5,16 @@ require 'net/http'
 
 class Auth0Client
 
-  # Auth0 Client Objects
-  Error = Struct.new(:message, :status)
+  # Class members
   Response = Struct.new(:decoded_token, :error)
+  Error = Struct.new(:message, :status)
+  Token = Struct.new(:token) do
+    def validate_roles(roles)
+      required_roles = Set.new roles
+      token_roles = Set.new token[0][Rails.configuration.auth0.roles]
+      required_roles <= token_roles
+    end
+  end
 
   # Helper Functions
   def self.domain_url
@@ -43,7 +50,7 @@ class Auth0Client
 
     decoded_token = decode_token(token, jwks_hash)
 
-    Response.new(decoded_token, nil)
+    Response.new(Token.new(decoded_token), nil)
   rescue JWT::VerificationError, JWT::DecodeError => e
     error = Error.new('Bad credentials', :unauthorized)
     Response.new(nil, error)

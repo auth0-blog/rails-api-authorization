@@ -19,10 +19,14 @@ class ReportsController < ApplicationController
 
   # GET users/:user_id/reports/1/approve
   def approve
-    @report.status = "approved"
-    @report.save
-
-    render json: @report
+    validate_roles [ADMIN] do
+      if @report.is_approver?(@user)
+        @report.status = "approved"
+        @report.save
+      end
+  
+      render json: @report
+    end
   end
 
   # GET users/:user_id/reports/1

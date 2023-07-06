@@ -1,7 +1,9 @@
 development:
   domain: <%= ENV.fetch('AUTH0_DOMAIN') %>
   audience: <%= ENV.fetch('AUTH0_AUDIENCE') %>
+  roles: <%= ENV.fetch('AUTH0_ROLES') %>
 
 production:
   domain: <%= ENV.fetch('AUTH0_DOMAIN') %>
   audience: <%= ENV.fetch('AUTH0_AUDIENCE') %>
+  roles: <%= ENV.fetch('AUTH0_ROLES') %>
