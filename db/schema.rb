@@ -23,8 +23,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_05_095104) do
 
   create_table "reports", force: :cascade do |t|
     t.string "status", default: "rejected", null: false
-    t.integer "submitter_id"
     t.integer "approver_id"
+    t.integer "submitter_id"
     t.integer "expense_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
