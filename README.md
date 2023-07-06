@@ -31,6 +31,6 @@ You can use this repository as a starting point before following the instruction
 
 3. Run the Expense Management API:
 
-   ```bash
-   rails s
-   ```
+  ```bash
+  rails s
+  ```
