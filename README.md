@@ -21,7 +21,8 @@ You can use this repository as a starting point before following the instruction
   ```bash
   git clone git@github.com:auth0-blog/rails-api-authorization.git
   ```
-2. Setup the database 
+
+1. Setup the database 
 
   ```
   rails db:setup
@@ -32,3 +33,4 @@ You can use this repository as a starting point before following the instruction
   ```bash
   rails s
   ```
+
