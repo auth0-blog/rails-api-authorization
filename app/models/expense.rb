@@ -1,6 +1,6 @@
 class Expense < ApplicationRecord
   belongs_to :submitter, class_name: 'User', foreign_key: :submitter_id
-  has_many :reports, foreign_key: :submitter_id
+  has_one :report, foreign_key: :submitter_id
 
   validates :reason, presence: true 
   validates :amount, presence: true, numericality: { greater_than: 0 }

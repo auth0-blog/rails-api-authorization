@@ -42,7 +42,7 @@ class ExpensesController < ApplicationController
 
   # DELETE users/:user_id/expenses/1
   def destroy
-    @expense.reports.destroy_all
+    @expense.report.destroy
     @expense.destroy
   end
 

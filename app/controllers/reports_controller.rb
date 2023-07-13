@@ -1,5 +1,5 @@
 class ReportsController < ApplicationController
-  before_action :set_report, only: %i[ show update destroy ]
+  before_action :set_report, only: %i[ show approve ]
   before_action :set_user
   before_action :authorize
 
@@ -15,6 +15,14 @@ class ReportsController < ApplicationController
     @reports = Report.where(approver_id: @user.id)
 
     render json: @reports
+  end
+
+  # GET users/:user_id/reports/1/approve
+  def approve
+    @report.status = "approved"
+    @report.save
+
+    render json: @report
   end
 
   # GET users/:user_id/reports/1
