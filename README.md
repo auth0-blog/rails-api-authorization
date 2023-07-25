@@ -1,24 +1,34 @@
-# README
+# Expense Report Managing API in Ruby Rails
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This repository contains an Expense Report Managing API in Ruby on Rails. 
 
-Things you may want to cover:
+To get context about the use cases of this API you can read more in the blog post: [What is the Right Authorization Model for my Application?](https://auth0.com/blog/whats-the-right-authorization-model-for-my-application/#Using-Roles)
 
-* Ruby version
+You can use this repository as a starting point before following the instructions in the following blog posts:
 
-* System dependencies
+- branch: [`add-rbac`](https://github.com/auth0-blog/rails-api-authorization/tree/add-rbac) has the code for the implementation explained in the blog post [What is Role-Based Access Control and How to Implement it in my Rails API?](https://auth0.com/blog/what-is-rbac-and-how-to-implement-it-rails-api). 
 
-* Configuration
+# Requirements
 
-* Database creation
+- [Ruby Version Manager (RVM)](https://rvm.io/)  
+- Ruby 3.1.2 
+- Rails 7.0.6
 
-* Database initialization
+# To run this application
 
-* How to run the test suite
+1. Clone the repo with the following command:
 
-* Services (job queues, cache servers, search engines, etc.)
+  ```bash
+  git clone git@github.com:auth0-blog/rails-api-authorization.git
+  ```
+2. Setup the database 
 
-* Deployment instructions
+  ```
+  rails db:setup
+  ```
 
-* ...
+3. Run the Expense Management API:
+
+  ```bash
+  rails s
+  ```
