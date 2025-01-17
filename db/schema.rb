@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_01_17_115846) do
+ActiveRecord::Schema[7.0].define(version: 2025_01_17_151450) do
   create_table "authorizations", force: :cascade do |t|
     t.string "store_id"
     t.string "model_id"
@@ -45,6 +45,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_17_115846) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "auth0_id"
+    t.integer "manager_id"
   end
 
   add_foreign_key "expenses", "users", column: "submitter_id"
