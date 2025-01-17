@@ -4,6 +4,7 @@ namespace :openfga do
     store_id = OpenfgaService.create_store
     if store_id
       authorization_model_id = OpenfgaService.create_authorization_model(store_id)
+      Authorization.create!(store_id: store_id, model_id: authorization_model_id)
       puts "Store ID: #{store_id}, Authorization Model ID: #{authorization_model_id}"
     else
       puts "Failed to create store"

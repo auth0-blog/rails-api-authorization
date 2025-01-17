@@ -43,9 +43,9 @@ class OpenfgaService
       writes: {
         tuple_keys: [
           {
-            user: "user:#{user}",
+            user: user,
             relation: relation,
-            object: "report:#{object}"
+            object: object
           }
         ]
       },
@@ -70,9 +70,9 @@ class OpenfgaService
     request.body = {
       authorization_model_id: authorization_model_id,
       tuple_key: {
-        user: "user:#{user}",
+        user: user,
         relation: relation,
-        object: "report:#{object}"
+        object: object
       }
     }.to_json
 
