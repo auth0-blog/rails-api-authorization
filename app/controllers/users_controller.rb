@@ -6,6 +6,9 @@ class UsersController < ApplicationController
   def index
     @users = User.all
 
+    store_id = OpenfgaService.create_store
+    OpenfgaService.create_authorization_model(store_id)
+
     render json: @users
   end
 
