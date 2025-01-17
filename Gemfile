@@ -23,6 +23,7 @@ group :development, :test do
   gem "dotenv-rails"
   gem "awesome_print"
   gem "pry"
+  gem "ruby-lsp"
 end
 
 group :development do
