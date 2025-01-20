@@ -25,18 +25,6 @@ module Secured
     render json: { message: error.message }, status: error.status
   end
 
-  def is_approver?(user, report)
-    OpenfgaService.authorized?("user:#{user.id}", "approver", "report:#{report.id}") # if user is the approver for this report
-  end
-
-  def submitted_reports(user)
-    OpenfgaService.list_objects(user, "submitter") # if user is the approver for this report
-  end
-
-  def reports_to_approve(user)
-    OpenfgaService.list_objects(user, "approver") # if user is the approver for this report
-  end
-
   private
 
   def token_from_request
