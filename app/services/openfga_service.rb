@@ -5,28 +5,26 @@ require 'pry'
 
 class OpenfgaService
 
-  def self.create_store
-    uri = URI.parse("#{ENV['FGA_API_URL']}/stores")
+  def self.make_post_request(path, body:)
+    uri = URI.parse("#{ENV['FGA_API_URL']}/#{path}")
     request = Net::HTTP::Post.new(uri)
     request.content_type = "application/json"
-    request.body = { name: "expenses" }.to_json
+    request.body = body
 
-    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
       http.request(request)
     end
+  end
+
+  def self.create_store
+    response = make_post_request("stores", body: { name: "expenses" }.to_json)
 
     JSON.parse(response.body)["id"] if response.code.to_i == 201 
   end
 
   def self.create_authorization_model(store_id)
-    uri = URI.parse("#{ENV['FGA_API_URL']}/stores/#{store_id}/authorization-models")
-    request = Net::HTTP::Post.new(uri)
-    request.content_type = "application/json"
-    request.body = File.read(Rails.root.join('config', 'openfga_authorization_model.json'))
-
-    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
-      http.request(request)
-    end
+    response = make_post_request("stores/#{store_id}/authorization-models", 
+    body: File.read(Rails.root.join('config', 'openfga_authorization_model.json')))
 
     JSON.parse(response.body)["authorization_model_id"] if response.code.to_i == 201
   end
@@ -36,10 +34,7 @@ class OpenfgaService
 
     store_id, authorization_model_id = authorization_data
 
-    uri = URI.parse("#{ENV['FGA_API_URL']}/stores/#{store_id}/write")
-    request = Net::HTTP::Post.new(uri)
-    request.content_type = "application/json"
-    request.body = {
+    body = {
       writes: {
         tuple_keys: [
           {
@@ -52,22 +47,17 @@ class OpenfgaService
       authorization_model_id: authorization_model_id
     }.to_json
 
-    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
-      http.request(request)
-    end
+    response = make_post_request("stores/#{store_id}/write", body: body)
 
     response.body
   end
 
-  def self.authorized?(user, relation, object)
+  def self.check(user, relation, object)
     return false unless authorization_data
     
     store_id, authorization_model_id = authorization_data
 
-    uri = URI.parse("#{ENV['FGA_API_URL']}/stores/#{store_id}/check")
-    request = Net::HTTP::Post.new(uri)
-    request.content_type = "application/json"
-    request.body = {
+    body = {
       authorization_model_id: authorization_model_id,
       tuple_key: {
         user: user,
@@ -75,42 +65,10 @@ class OpenfgaService
         object: object
       }
     }.to_json
+    
+    response = make_post_request("stores/#{store_id}/check", body: body)
 
-    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
-      http.request(request)
-    end
-    binding.pry
-    JSON.parse(response.body)["allowed"]
-  end
-
-  def self.batch_check(user, relation, object_ids)
-    return unless authorization_data
-
-    store_id, authorization_model_id = authorization_data
-
-    checks = object_ids.map do |object_id| {
-          "tuple_key": {
-          "user":"user:#{user}",
-          "relation":"#{relation}",
-          "object":"report:#{object_id}",
-        },
-        "correlation_id": SecureRandom.uuid
-      }
-    end
-    uri = URI.parse("#{ENV['FGA_API_URL']}/stores/#{store_id}/batch-check")
-    request = Net::HTTP::Post.new(uri)
-    request.content_type = "application/json"
-    request.body = {
-      authorization_model_id: authorization_model_id,
-      checks: checks
-    }.to_json
-
-    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
-      http.request(request)
-    end
-    binding.pry
-
-    JSON.parse(response.body)["results"]
+    response.code.to_i == 200 ? JSON.parse(response.body)["allowed"] : false
   end
   
   def self.list_objects(user, relation)
@@ -118,10 +76,7 @@ class OpenfgaService
 
     store_id, authorization_model_id = authorization_data
 
-    uri = URI.parse("#{ENV['FGA_API_URL']}/stores/#{store_id}/list-objects")
-    request = Net::HTTP::Post.new(uri)
-    request.content_type = "application/json"
-    request.body = {
+    body = {
       authorization_model_id: authorization_model_id,
       type: "report",
       relation: relation,
@@ -130,11 +85,41 @@ class OpenfgaService
       consistency: "MINIMIZE_LATENCY"
     }.to_json
 
-    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
-      http.request(request)
+    response = make_post_request("stores/#{store_id}/list-objects", body: body)
+
+    response.code.to_i == 200 ? JSON.parse(response.body)["objects"].map{|obj| obj.split(":")[1].to_i} : []
+  end
+
+  # atuhorized if at least one of the relations is allowed: true
+  def self.batch_check_relations(user, relations, object)
+    return unless authorization_data
+
+    store_id, authorization_model_id = authorization_data
+        
+    checks = relations.map do |relation|
+      {
+        "tuple_key": {
+          "user": user,
+          "relation": relation,
+          "object": object,
+        },
+      "correlation_id": SecureRandom.uuid 
+      }
     end
 
-    JSON.parse(response.body)["objects"].map{|obj| obj.split(":")[1].to_i} if response.code.to_i == 200
+    response = make_post_request("stores/#{store_id}/batch-check", 
+                                 body: {authorization_model_id: "#{authorization_model_id}", checks: checks}.to_json)
+
+    # # Response: 
+    # {
+    #   "results": {
+    #     { "886224f6-04ae-4b13-bd8e-559c7d3754e1": { "allowed": false }}, # submmiter
+    #     { "da452239-a4e0-4791-b5d1-fb3d451ac078": { "allowed": true }}, # approver
+    #   }
+    # } 
+    # in our case if at least one of those is true, then the user can view the report. This is VERY specific for this 
+    # use case!
+    response.code.to_i == 200 ? JSON.parse(response.body)["result"].values.map{|e| e.values}.flatten.any? : false
   end
 
   private 
