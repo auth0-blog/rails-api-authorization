@@ -8,16 +8,7 @@ class Auth0Client
   # Class members
   Response = Struct.new(:decoded_token, :error)
   Error = Struct.new(:message, :status)
-  Token = Struct.new(:token) do
-    def validate_roles(roles)
-      required_roles = Set.new roles
-      token_roles = Set.new token[0][Rails.configuration.auth0.roles]
-      required_roles <= token_roles
-    end
-    def validate_user(current_user)
-      current_user.auth0_id == token[0]["sub"]
-    end
-  end
+  Token = Struct.new(:token)
 
   # Helper Functions
   def self.domain_url

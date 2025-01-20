@@ -12,16 +12,6 @@ module Secured
     error_description: 'Authorization header value must follow this format: Bearer access-token',
     message: 'Bad credentials'
   }.freeze
-  INSUFFICIENT_ROLES = {
-    error: 'insufficient_roles',
-    error_description: 'The access token does not contain the required roles',
-    message: 'Permission denied'
-  }.freeze
-  NOT_OWNER = {
-    error: 'not_owner',
-    error_description: 'The access token does not belong to the current user',
-    message: 'Permission denied'
-  }.freeze
 
   def authorize
     token = token_from_request
@@ -35,18 +25,16 @@ module Secured
     render json: { message: error.message }, status: error.status
   end
 
-  def validate_roles(roles)
-    raise 'validate_roles needs to be called with a block' unless block_given?
-    return yield if @decoded_token.validate_roles(roles)
-
-    render json: INSUFFICIENT_ROLES, status: :forbidden
+  def is_approver?(user, report)
+    OpenfgaService.authorized?("user:#{user.id}", "approver", "report:#{report.id}") # if user is the approver for this report
   end
 
-  def validate_ownership(current_user)
-    raise 'validate_ownership needs to be called with a block' unless block_given?
-    return yield if @decoded_token.validate_user(current_user)
+  def submitted_reports(user)
+    OpenfgaService.list_objects(user, "submitter") # if user is the approver for this report
+  end
 
-    render json: NOT_OWNER, status: :forbidden
+  def reports_to_approve(user)
+    OpenfgaService.list_objects(user, "approver") # if user is the approver for this report
   end
 
   private

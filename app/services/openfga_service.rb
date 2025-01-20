@@ -79,15 +79,24 @@ class OpenfgaService
     response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
       http.request(request)
     end
-
+    binding.pry
     JSON.parse(response.body)["allowed"]
   end
 
-  def self.batch_check(checks)
+  def self.batch_check(user, relation, object_ids)
     return unless authorization_data
 
     store_id, authorization_model_id = authorization_data
 
+    checks = object_ids.map do |object_id| {
+          "tuple_key": {
+          "user":"user:#{user}",
+          "relation":"#{relation}",
+          "object":"report:#{object_id}",
+        },
+        "correlation_id": SecureRandom.uuid
+      }
+    end
     uri = URI.parse("#{ENV['FGA_API_URL']}/stores/#{store_id}/batch-check")
     request = Net::HTTP::Post.new(uri)
     request.content_type = "application/json"
@@ -99,8 +108,33 @@ class OpenfgaService
     response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
       http.request(request)
     end
+    binding.pry
 
     JSON.parse(response.body)["results"]
+  end
+  
+  def self.list_objects(user, relation)
+    return unless authorization_data
+
+    store_id, authorization_model_id = authorization_data
+
+    uri = URI.parse("#{ENV['FGA_API_URL']}/stores/#{store_id}/list-objects")
+    request = Net::HTTP::Post.new(uri)
+    request.content_type = "application/json"
+    request.body = {
+      authorization_model_id: authorization_model_id,
+      type: "report",
+      relation: relation,
+      user: "user:#{user.id}",
+      context: {},
+      consistency: "MINIMIZE_LATENCY"
+    }.to_json
+
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+      http.request(request)
+    end
+
+    JSON.parse(response.body)["objects"].map{|obj| obj.split(":")[1].to_i} if response.code.to_i == 200
   end
 
   private 

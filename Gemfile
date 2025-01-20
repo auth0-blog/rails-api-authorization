@@ -24,6 +24,7 @@ group :development, :test do
   gem "awesome_print"
   gem "pry"
   gem "ruby-lsp"
+  gem "solargraph"
 end
 
 group :development do
