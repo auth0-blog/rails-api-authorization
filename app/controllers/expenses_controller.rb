@@ -23,7 +23,7 @@ class ExpensesController < ApplicationController
 
       if @expense.save
         report = Report.create(expense: @expense, submitter_id: @expense.submitter_id)
-        update_openfga_relation(report) if report.persisted?
+        update_authorization_submitter(@user.id, report) if report.persisted?
         render json: @expense, status: :created
       else
         render json: @expense.errors, status: :unprocessable_entity
@@ -60,9 +60,5 @@ class ExpensesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def expense_params
       params.require(:expense).permit(:reason, :date, :amount)
-    end
-
-    def update_openfga_relation(report)
-      OpenfgaService.update_relation("user:#{report.submitter_id}", "submitter", "report:#{report.id}")
     end
 end

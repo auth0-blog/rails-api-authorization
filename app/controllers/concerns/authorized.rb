@@ -20,4 +20,8 @@ module Authorized
   def update_authorization_manager(manager_id, relation, object)
     OpenfgaService.update_relation("user:#{manager_id}", relation, "user:#{object.id}")
   end
+
+  def update_authorization_submitter(submitter_id, object)
+    OpenfgaService.update_relation("user:#{submitter_id}", "submitter", "report:#{object.id}")
+  end
 end
