@@ -16,4 +16,8 @@ module Authorized
 
     OpenfgaService.list_objects(user, relation)
   end
+
+  def update_authorization_manager(manager_id, relation, object)
+    OpenfgaService.update_relation("user:#{manager_id}", relation, "user:#{object.id}")
+  end
 end
