@@ -12,20 +12,17 @@ namespace :openfga do
   end
 
   desc "Update relation"
-  task update_relation: :environment do
-    user = "anne"
-    relation = "reader"
-    object = "document:Z"
-    result = OpenfgaService.update_relation(user, relation, object)
+  task :update_relation, [:user, :relation, :object] => :environment do |_t, args|
+    result = OpenfgaService.update_relation("user:#{args[:user]}", args[:relation], "report:#{args[:object]}")
     puts "Update relation result: #{result}"
   end
 
   desc "Check authorization"
   task check_authorization: :environment do
-    user = "anne"
-    relation = "can_view"
-    object = "document:Z"
-    allowed = OpenfgaService.authorized?(user, relation, object)
+    user = "user:carla"
+    relation = "submitter"
+    object = "report:1"
+    allowed = OpenfgaService.check(user, relation, object)
     puts "Authorization check: #{allowed}"
   end
 end
