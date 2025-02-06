@@ -8,6 +8,7 @@ You can use this repository as a starting point before following the instruction
 
 - branch: [`add-rbac`](https://github.com/auth0-blog/rails-api-authorization/tree/add-rbac) has the code for the implementation explained in the blog post [What is Role-Based Access Control and How to Implement it in my Rails API?](https://auth0.com/blog/what-is-rbac-and-how-to-implement-it-rails-api).
 - branch: [`add-abac`](https://github.com/auth0-blog/rails-api-authorization/tree/add-rbac) has the code for the implementation explained in the the blog post [What is Attribute-Based Access Control and How to Implement it in my Rails API?](https://auth0.com/blog/what-is-abac-and-how-to-implement-it-rails-api).
+- branch: [`add-rebac-openfga`](https://github.com/auth0-blog/rails-api-authorization/tree/add-rebac-openfga) has the code for the implementation explained in the the blog post [How to Implement Relationship-Based Access Control (ReBAC) in a Ruby On Rails API?](https://auth0.com/blog/what-is-rebac-and-how-to-implement-rails-api/).
 
 ### Changelog
 - User can only see reports submitted by them.
