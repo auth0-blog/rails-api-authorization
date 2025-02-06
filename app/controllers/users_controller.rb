@@ -19,6 +19,7 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
 
     if @user.save
+      update_authorization_manager(user_params[:manager_id], "manager", @user) if user_params[:manager_id]
       render json: @user, status: :created, location: @user
     else
       render json: @user.errors, status: :unprocessable_entity
@@ -28,6 +29,7 @@ class UsersController < ApplicationController
   # PATCH/PUT /users/1
   def update
     if @user.update(user_params)
+      update_authorization_manager(user_params[:manager_id], "manager", @user) if user_params[:manager_id]
       render json: @user
     else
       render json: @user.errors, status: :unprocessable_entity
@@ -47,6 +49,6 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      params.require(:user).permit(:email)
+      params.require(:user).permit(:email, :auth0_id, :manager_id)
     end
 end

@@ -22,7 +22,8 @@ class ExpensesController < ApplicationController
       @expense.submitter_id = @user.id
 
       if @expense.save
-        Report.create(expense: @expense, submitter_id: @expense.submitter_id)
+        report = Report.create(expense: @expense, submitter_id: @expense.submitter_id)
+        update_authorization_submitter(@user.id, report) if report.persisted?
         render json: @expense, status: :created
       else
         render json: @expense.errors, status: :unprocessable_entity

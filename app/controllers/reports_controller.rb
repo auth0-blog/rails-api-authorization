@@ -5,40 +5,41 @@ class ReportsController < ApplicationController
 
   # GET users/:user_id/reports/submitted
   def submitted
-    validate_ownership(@user) do # user is the owner of these reports
-      @reports = Report.where(submitter_id: @user.id) # list only reports where user is submitter
+    @reports = Report.find(reports(@user, "submitter")) 
 
-      render json: @reports
-    end
+    render json: @reports if @reports
   end
 
   # GET users/:user_id/reports/review
   def review
-    validate_ownership(@user) do # user is the owner of these reports
-      @reports = Report.where(approver_id: @user.id) # list only reports where user is approver
+    @reports = Report.find(reports(@user, "approver")).select{|r| r.status != "approved"}
 
-      render json: @reports
-    end
+    render json: @reports if @reports   
   end
 
-  # GET users/:user_id/reports/1/approve
+  # PUT users/:user_id/reports/1/approve
   def approve
-    validate_roles [ADMIN] do # if user is admin
-      if @report.is_approver?(@user) # if user is the approver for this report
-        if Date.current.on_weekday? # can only approve on weekdays
-          @report.status = "approved"
-          @report.save
-          render json: @report
-        else
-          render json: {message: "Can only approve on weekdays"}, status: 401
-        end
+    if authorized?(@user, ["approver"], @report)
+      if Date.current.on_weekday? # can only approve on weekdays
+        @report.status = "approved"
+        @report.save
+        render json: @report
+      else
+        render json: {message: "Can only approve on weekdays"}, status: 401
       end
+    else
+      render json: {message: "You don't have permission to approve this report"}, status: 401
     end
   end
 
   # GET users/:user_id/reports/1
   def show
-    render json: @report
+    # user can view if they are a submitter or approver of the report 
+    if authorized?(@user, ["submitter", "approver"], @report)
+      render json: @report
+    else
+      render json: {message: "You don't have permission to view this report"}, status: 401
+    end
   end
 
   private
